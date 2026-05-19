@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSAT Bingo Тренажер</title>
+    <style>
+        body {
+            background-color: #1a1a24;
+            color: #f0f0f5;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .subtitle {
+            color: #aaa;
+            margin-bottom: 25px;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .game-container {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+        }
+
+        .bingo-card-container {
+            flex: 1;
+            background: #23232f;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border: 2px solid #333;
+        }
+
+        .bingo-card-container h3 {
+            margin-top: 0;
+            text-align: center;
+            color: #4CAF50;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .bingo-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bingo-cell {
+            background: #2d2d3d;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+            border: 1px solid #444;
+            transition: all 0.4s ease;
+            color: #ccc;
+        }
+
+        .bingo-cell.active {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border-color: #66bb6a;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            transform: scale(1.02);
+        }
+
+        .simulator-container {
+            flex: 1.2;
+            background: #23232f;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border: 2px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nsat-stars {
+            font-size: 1.5rem;
+            color: #ffca28;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .chat-box {
+            background: #111116;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 80px;
+            margin-bottom: 20px;
+            border-left: 4px solid #00bcd4;
+        }
+
+        .client-name {
+            font-weight: bold;
+            color: #00bcd4;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .client-text {
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #2d2d3d;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 14px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.95rem;
+            transition: background 0.2s, transform 0.1s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .option-btn:hover {
+            background: #3d3d52;
+            border-color: #888;
+        }
+
+        .option-btn:active {
+            transform: scale(0.99);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal {
+            background: #23232f;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 450px;
+            border: 3px solid #4CAF50;
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
+        }
+
+        .modal h2 {
+            color: #4CAF50;
+            font-size: 2.5rem;
+            margin-top: 0;
+        }
+
+        .modal p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #ddd;
+        }
+
+        .restart-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .restart-btn:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Гейміфікація: NSAT Bingo 🎯</h1>
+    <div class="subtitle">
+        Твій показник NSAT залежить від атмосфери, простоти пояснень та швидкості. Збери всі 5 елементів ідеального сервісу, щоб закрити картку Бінго на 5 зірок!
+    </div>
+
+    <div class="game-container">
+        
+        <!-- КАРТКА БІНГО -->
+        <div class="bingo-card-container">
+            <h3>Твоя Картка Бінго</h3>
+            <div class="bingo-grid">
+                <div class="bingo-cell" id="cell-empathy">❤️ Емпатія</div>
+                <div class="bingo-cell" id="cell-simple">💡 Просте пояснення</div>
+                <div class="bingo-cell" id="cell-name">👤 Ім'я клієнта</div>
+                <div class="bingo-cell" id="cell-wow">✨ WOW-фраза</div>
+                <div class="bingo-cell" id="cell-needs">🔍 Уточнення потреби</div>
+            </div>
+        </div>
+
+        <!-- СИМУЛЯТОР ДІАЛОГІВ -->
+        <div class="simulator-container">
+            <div class="nsat-stars" id="nsat-rating">Поточний NSAT: ⭐⭐⭐ (3.0)</div>
+            
+            <div class="chat-box">
+                <div class="client-name" id="client-title">Завантаження...</div>
+                <div class="client-text" id="client-text">Будь ласка, зачекайте.</div>
+            </div>
+
+            <div style="margin-bottom: 10px; font-weight: bold; color: #aaa;">Обери найкращу відповідь:</div>
+            <div class="options-container" id="options-block">
+                <!-- Кнопки генеруються тут -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Вікно Перемоги -->
+    <div class="overlay" id="victory-overlay">
+        <div class="modal">
+            <h2>БІНГО! 🎉</h2>
+            <p>Чудова робота! Ти використав усі ключові фішки клієнтського досвіду.</p>
+            <p style="font-size: 1.5rem; color: #ffca28; font-weight: bold;" id="final-nsat">Твій NSAT: 5.0 / 5.0</p>
+            <button class="restart-btn" onclick="initGame()">Грати знову</button>
+        </div>
+    </div>
+
+    <script>
+        // Набір ситуацій
+        const scenarios = [
+            {
+                client: "Клієнтка Марина",
+                text: "«Я взагалі не розбираюся в цих ваших тарифах... Що таке 'Гігабітний синхронний оптичний інтернет з динамічним IP за технологією GPON'? Можна для людей?»",
+                targetSkill: "simple",
+                options: [
+                    { text: "Це означає, що у вас буде дуже швидкий та стабільний інтернет, який працює навіть коли вимкнуть світло. Все просто вмикається в один кабель.", correct: true },
+                    { text: "Це технологія Gigabit Passive Optical Network, де оптичний сигнал ділиться через сплітери без активного живлення.", correct: false },
+                    { text: "Вам не обов'язково це знати, просто підпишіть контракт і майстер приїде в середу.", correct: false }
+                ]
+            },
+            {
+                client: "Клієнт Дмитро",
+                text: "«Я щойно втратив свій телефон, заблокуйте, будь ласка, мою SIM-карту якомога швидше!»",
+                targetSkill: "empathy",
+                options: [
+                    { text: "Дмитре, мені дуже шкода, що ви потрапили в таку неприємну ситуацію. Не хвилюйтеся, зараз ми все оперативно заблокуємо, щоб ваші дані були в безпеці.", correct: true },
+                    { text: "Скажіть ваш паспортний номер, серію та секретне слово. Чекайте на лінії.", correct: false },
+                    { text: "Блокування платне, коштує 20 гривень. Робимо?", correct: false }
+                ]
+            },
+            {
+                client: "Клієнт Олександр",
+                text: "«Доброго дня, я залишав заявку на ремонт лінії ще вчора, чому досі ніхто не приїхав?»",
+                targetSkill: "name",
+                options: [
+                    { text: "Пане Олександре, вітаю! Зараз я особисто перевірю статус вашої заявки в системі і з'ясую, де саме зараз перебуває майстер.", correct: true },
+                    { text: "У нас багато заявок через негоду. Очікуйте в порядку черги.", correct: false },
+                    { text: "Який номер вашого договору? Без нього я нічого не скажу.", correct: false }
+                ]
+            },
+            {
+                client: "Клієнтка Олена",
+                text: "«Я хочу змінити свій старий роутер на новий, але не знаю, який обрати з вашого сайту.»",
+                targetSkill: "needs",
+                options: [
+                    { text: "Олено, підкажіть, будь ласка, скільки пристроїв зазвичай підключено до мережі одночасно і чи плануєте ви грати в онлайн-ігри чи дивитися 4К відео?", correct: true },
+                    { text: "Беріть найдорожчий, він найкращий і точно працюватиме добре.", correct: false },
+                    { text: "Всі характеристики є на сайті, почитайте описи під кожною моделлю.", correct: false }
+                ]
+            },
+            {
+                client: "Клієнт Ігор",
+                text: "«Дякую, питання вирішено, ви мені дуже допомогли!»",
+                targetSkill: "wow",
+                options: [
+                    { text: "Ігорю, щиро радий був допомогти! Нехай інтернет літає, а якщо виникнуть питання — ми завжди поруч 24/7. Гарного дня!", correct: true },
+                    { text: "Добре, до побачення. Оцініть мою роботу в смс.", correct: false },
+                    { text: "Будь ласка. Наступний клієнт, будь ласка.", correct: false }
+                ]
+            }
+        ];
+
+        let activeSkills = { empathy: false, simple: false, name: false, wow: false, needs: false };
+        let nsatScore = 3.0;
+        let pool = [];
+
+        function initGame() {
+            activeSkills = { empathy: false, simple: false, name: false, wow: false, needs: false };
+            nsatScore = 3.0;
+            
+            // Очищення стилів картки
+            document.querySelectorAll('.bingo-cell').forEach(cell => cell.classList.remove('active'));
+            document.getElementById('victory-overlay').style.display = 'none';
+            
+            // Копіюємо всі сценарії в робочий пул та перемішуємо
+            pool = [...scenarios];
+            pool.sort(() => Math.random() - 0.5);
+            
+            updateUI();
+        }
+
+        function updateUI() {
+            // Оновлюємо табло оцінки
+            document.getElementById('nsat-rating').innerText = `Поточний NSAT: ⭐ ${nsatScore.toFixed(1)}`;
+
+            // Перевірка на Бінго
+            const isBingo = Object.values(activeSkills).every(v => v === true);
+            if (isBingo) {
+                document.getElementById('final-nsat').innerText = `Твій підсумковий NSAT: ⭐ ${nsatScore.toFixed(1)} / 5.0`;
+                document.getElementById('victory-overlay').style.display = 'flex';
+                return;
+            }
+
+            // Якщо пулл порожній, але Бінго ще немає — перезаправляємо невирішеними картками
+            if (pool.length === 0) {
+                pool = scenarios.filter(s => !activeSkills[s.targetSkill]);
+                pool.sort(() => Math.random() - 0.5);
+            }
+
+            // Беремо перший сценарій з пулу
+            const currentScenario = pool[0];
+
+            // Виводимо текст на екран
+            document.getElementById('client-title').innerText = currentScenario.client + ":";
+            document.getElementById('client-text').innerText = currentScenario.text;
+
+            // Рендеримо кнопки відповідей
+            const optionsBlock = document.getElementById('options-block');
+            optionsBlock.innerHTML = '';
+
+            currentScenario.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.innerText = option.text;
+                // Вішаємо подію кліку
+                button.onclick = function() {
+                    handleAnswer(option.correct, currentScenario.targetSkill);
+                };
+                optionsBlock.appendChild(button);
+            });
+        }
+
+        function handleAnswer(isCorrect, skill) {
+            if (isCorrect) {
+                alert("🎯 Чудова відповідь! Клієнт задоволений.");
+                activeSkills[skill] = true;
+                document.getElementById(`cell-${skill}`).classList.add('active');
+                
+                nsatScore += 0.4;
+                if (nsatScore > 5.0) nsatScore = 5.0;
+            } else {
+                alert("❌ Ой, клієнту це не дуже сподобалось. Подумай про сервісні критерії.");
+                nsatScore -= 0.3;
+                if (nsatScore < 1.0) nsatScore = 1.0;
+            }
+
+            // Видаляємо щойно зіграний сценарій з початку пулу
+            pool.shift();
+            
+            // Оновлюємо інтерфейс для наступного кроку
+            updateUI();
+        }
+
+        // Запуск гри відразу після завантаження сторінки
+        window.onload = initGame;
+    </script>
+</body>
+</html>
